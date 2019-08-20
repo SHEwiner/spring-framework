@@ -21,7 +21,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.core.OverridingClassLoader;
 
@@ -81,7 +81,6 @@ public class MergedAnnotationClassLoaderTests {
 		// Also check utils version
 		Annotation utilsMeta = AnnotatedElementUtils.getMergedAnnotation(source,
 				TestMetaAnnotation.class);
-		assertThat(utilsMeta.getClass().getClassLoader()).isEqualTo(parent);
 		assertThat(utilsMeta.getClass().getClassLoader()).isEqualTo(parent);
 		assertThat(getClassAttribute(utilsMeta).getClassLoader()).isEqualTo(child);
 		assertThat(getEnumAttribute(utilsMeta).getClass().getClassLoader()).isEqualTo(

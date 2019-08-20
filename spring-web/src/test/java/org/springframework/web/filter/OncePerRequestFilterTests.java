@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.web.filter;
 
 import java.io.IOException;
@@ -23,8 +24,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.test.MockFilterChain;
 import org.springframework.mock.web.test.MockHttpServletRequest;
@@ -33,9 +34,9 @@ import org.springframework.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 /**
  * Unit tests for {@link OncePerRequestFilter}.
+ *
  * @author Rossen Stoyanchev
  * @since 5.1.9
  */
@@ -48,7 +49,7 @@ public class OncePerRequestFilterTests {
 	private MockFilterChain filterChain;
 
 
-	@Before
+	@BeforeEach
 	@SuppressWarnings("serial")
 	public void setup() throws Exception {
 		this.request = new MockHttpServletRequest();
@@ -132,25 +133,8 @@ public class OncePerRequestFilterTests {
 		private boolean didFilterNestedErrorDispatch;
 
 
-		public void setShouldNotFilter(boolean shouldNotFilter) {
-			this.shouldNotFilter = shouldNotFilter;
-		}
-
-		public void setShouldNotFilterAsyncDispatch(boolean shouldNotFilterAsyncDispatch) {
-			this.shouldNotFilterAsyncDispatch = shouldNotFilterAsyncDispatch;
-		}
-
 		public void setShouldNotFilterErrorDispatch(boolean shouldNotFilterErrorDispatch) {
 			this.shouldNotFilterErrorDispatch = shouldNotFilterErrorDispatch;
-		}
-
-
-		public boolean didFilter() {
-			return this.didFilter;
-		}
-
-		public boolean didFilterNestedErrorDispatch() {
-			return this.didFilterNestedErrorDispatch;
 		}
 
 		public void reset() {

@@ -43,11 +43,11 @@ import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
 import org.assertj.core.api.AbstractAssert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.core.ResolvableType.VariableResolver;
 import org.springframework.util.MultiValueMap;
@@ -68,7 +68,7 @@ import static org.mockito.Mockito.verify;
  * @author Sebastien Deleuze
  */
 @SuppressWarnings("rawtypes")
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ResolvableTypeTests {
 
 	@Captor
@@ -134,29 +134,41 @@ public class ResolvableTypeTests {
 		assertThat(type.isAssignableFrom(String.class)).isTrue();
 	}
 
+	@Test  // gh-23321
+	public void forRawClassAssignableFromTypeVariable() throws Exception {
+		ResolvableType typeVariable = ResolvableType.forClass(ExtendsList.class).as(List.class).getGeneric();
+		ResolvableType raw = ResolvableType.forRawClass(CharSequence.class);
+		assertThat(raw.resolve()).isEqualTo(CharSequence.class);
+		assertThat(typeVariable.resolve()).isEqualTo(CharSequence.class);
+		assertThat(raw.resolve().isAssignableFrom(typeVariable.resolve())).isTrue();
+		assertThat(typeVariable.resolve().isAssignableFrom(raw.resolve())).isTrue();
+		assertThat(raw.isAssignableFrom(typeVariable)).isTrue();
+		assertThat(typeVariable.isAssignableFrom(raw)).isTrue();
+	}
+
 	@Test
-	public void forInstanceMustNotBeNull() {
+	public void forInstanceMustNotBeNull() throws Exception {
 		assertThatIllegalArgumentException().isThrownBy(() ->
 				ResolvableType.forInstance(null))
 			.withMessageContaining("Instance must not be null");
 	}
 
 	@Test
-	public void forInstanceNoProvider() {
+	public void forInstanceNoProvider() throws Exception {
 		ResolvableType type = ResolvableType.forInstance(new Object());
 		assertThat(type.getType()).isEqualTo(Object.class);
 		assertThat(type.resolve()).isEqualTo(Object.class);
 	}
 
 	@Test
-	public void forInstanceProvider() {
+	public void forInstanceProvider() throws Exception {
 		ResolvableType type = ResolvableType.forInstance(new MyGenericInterfaceType<>(String.class));
 		assertThat(type.getRawClass()).isEqualTo(MyGenericInterfaceType.class);
 		assertThat(type.getGeneric().resolve()).isEqualTo(String.class);
 	}
 
 	@Test
-	public void forInstanceProviderNull() {
+	public void forInstanceProviderNull() throws Exception {
 		ResolvableType type = ResolvableType.forInstance(new MyGenericInterfaceType<String>(null));
 		assertThat(type.getType()).isEqualTo(MyGenericInterfaceType.class);
 		assertThat(type.resolve()).isEqualTo(MyGenericInterfaceType.class);
@@ -430,12 +442,8 @@ public class ResolvableTypeTests {
 			interfaces.add(interfaceType.toString());
 		}
 		assertThat(interfaces.toString()).isEqualTo(
-				"["
-				+ "java.io.Serializable, "
-				+ "java.lang.Cloneable, "
-				+ "java.util.List<java.lang.CharSequence>, "
-				+ "java.util.RandomAccess"
-				+ "]");
+				"[java.io.Serializable, java.lang.Cloneable, " +
+				"java.util.List<java.lang.CharSequence>, java.util.RandomAccess]");
 	}
 
 	@Test
@@ -1336,6 +1344,7 @@ public class ResolvableTypeTests {
 		return new ResolvableTypeAssert(type);
 	}
 
+
 	@SuppressWarnings("unused")
 	private HashMap<Integer, List<String>> myMap;
 
@@ -1343,7 +1352,6 @@ public class ResolvableTypeTests {
 	@SuppressWarnings("serial")
 	static class ExtendsList extends ArrayList<CharSequence> {
 	}
-
 
 	@SuppressWarnings("serial")
 	static class ExtendsMap extends HashMap<String, Integer> {
@@ -1603,6 +1611,7 @@ public class ResolvableTypeTests {
 		Set<Integer> set;
 	}
 
+
 	private static class ResolvableTypeAssert extends AbstractAssert<ResolvableTypeAssert, ResolvableType>{
 
 		public ResolvableTypeAssert(ResolvableType actual) {
@@ -1636,7 +1645,6 @@ public class ResolvableTypeTests {
 			}
 			return type.getType() + ":" + type;
 		}
-
 	}
 
 }
